@@ -202,6 +202,8 @@ struct ThumbImage: View {
 
 struct TopBar: View {
     @EnvironmentObject var store: AppStore
+    /// Live-updates the tab names and tooltips when the language switches.
+    @ObservedObject var language = LanguageStore.shared
     @Namespace private var navNS
 
     /// Over Home's playing banner on the light look. The bar keeps the dark
@@ -239,7 +241,7 @@ struct TopBar: View {
                 Text("Muro")
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(ink)
-                CreditLink(text: "made by \(Credits.name)")
+                CreditLink(text: trf("made by %1", Credits.name))
             }
         }
     }
@@ -248,7 +250,7 @@ struct TopBar: View {
         HStack(spacing: 2) {
             ForEach(AppStore.Tab.allCases) { tab in
                 let selected = store.tab == tab
-                Text(tab.rawValue)
+                Text(tr(tab.rawValue))
                     .font(.system(size: 13, weight: selected ? .semibold : .medium))
                     .foregroundStyle(selected ? (onMedia ? Color.black : Color.muroOnInk) : ink.opacity(0.85))
                     .padding(.horizontal, 20)
@@ -283,7 +285,7 @@ struct TopBar: View {
                 systemName: "magnifyingglass",
                 glyphScale: 0.42,
                 active: store.searchActive,
-                help: "Search wallpapers"
+                help: tr("Search wallpapers")
             ) {
                 if store.searchActive {
                     store.searchActive = false
@@ -300,7 +302,7 @@ struct TopBar: View {
                 systemName: "gearshape",
                 glyphScale: 0.44,
                 turns: true,
-                help: "Settings"
+                help: tr("Settings")
             ) {
                 openSettingsWindow()
             }
@@ -323,7 +325,7 @@ extension TopBar {
             glyphScale: 0.44,
             active: store.whatsNewOpen,
             badged: update,
-            help: update ? "A new version of Muro is available" : "What's New in Muro"
+            help: update ? tr("A new version of Muro is available") : tr("What's New in Muro")
         ) {
             store.whatsNewOpen = true
             store.markUpdateSeen()
@@ -360,7 +362,7 @@ struct UpdateCallout: View {
             HStack(spacing: 9) {
                 Image(systemName: "arrow.down.circle.fill")
                     .font(.system(size: 13, weight: .semibold))
-                Text("New update available")
+                Text(tr("New update available"))
                     .font(.system(size: 12.5, weight: .semibold))
                     .fixedSize()
                 Button(action: dismiss) {
@@ -407,6 +409,7 @@ struct Triangle: Shape {
 /// is offered.
 struct ImportButton: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     var size: CGFloat = 42
 
     @State private var showImporter = false
@@ -439,7 +442,7 @@ struct ImportButton: View {
             }
         }
         .onHover { hovering = $0 }
-        .help(store.importStatus ?? "Import your own video")
+        .help(store.importStatus ?? tr("Import your own video"))
         .fileImporter(
             isPresented: $showImporter,
             allowedContentTypes: [.movie, .mpeg4Movie, .quickTimeMovie],
@@ -1008,7 +1011,7 @@ struct FPSChip: View {
 
 struct NewBadge: View {
     var body: some View {
-        Text("NEW")
+        Text(tr("NEW"))
             .font(.system(size: 9, weight: .bold))
             .tracking(1)
             .foregroundStyle(Color.muroOnAccent)
@@ -1075,7 +1078,7 @@ struct DeleteButton: View {
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
         .animation(.easeOut(duration: 0.12), value: hovering)
-        .help("Delete wallpaper")
+        .help(tr("Delete wallpaper"))
     }
 }
 
@@ -1127,6 +1130,7 @@ struct DownloadRing: View {
 
 struct WallpaperCard: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     let item: WallpaperItem
     var persistentTitle = false
     /// Library only. Explore and Home show wallpapers you may not own yet,
@@ -1205,20 +1209,20 @@ struct WallpaperCard: View {
         if item.id.hasPrefix(AppleAerials.picturePrefix) {
             guard store.canRemoveApplePicture(item), !showsDelete else { return [] }
             return [MenuOption(
-                title: "Remove Download (\(formatSize(item.sizeBytes)))",
+                title: trf("Remove Download (%1)", formatSize(item.sizeBytes)),
                 destructive: true
             ) { store.removeDownload(item) }]
         }
         guard item.isDownloaded, !showsDelete else { return [] }
         if item.remote == nil {
             return [MenuOption(
-                title: "Delete Wallpaper (\(formatSize(item.sizeBytes)))",
+                title: trf("Delete Wallpaper (%1)", formatSize(item.sizeBytes)),
                 destructive: true
             ) { store.requestDelete([item]) }]
         }
         if removableDownload {
             return [MenuOption(
-                title: "Remove Download (\(formatSize(item.sizeBytes)))",
+                title: trf("Remove Download (%1)", formatSize(item.sizeBytes)),
                 destructive: true
             ) { store.removeDownload(item) }]
         }
@@ -1369,6 +1373,7 @@ struct CreditLink: View {
 
 struct SearchField: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -1376,7 +1381,7 @@ struct SearchField: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 12))
                 .foregroundStyle(Color.muroSecondary)
-            TextField("Search wallpapers…", text: $store.searchText)
+            TextField(tr("Search wallpapers…"), text: $store.searchText)
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
                 .foregroundStyle(Color.muroInk)

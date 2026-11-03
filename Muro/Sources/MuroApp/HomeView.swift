@@ -3,6 +3,8 @@ import MuroKit
 
 struct HomeView: View {
     @EnvironmentObject var store: AppStore
+    /// Live-updates the featured and empty-library wording.
+    @ObservedObject var language = LanguageStore.shared
     @State private var pickPage = 0
     @State private var dropPage = 0
 
@@ -194,7 +196,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Over the playing wallpaper, so these keep the dark look's
             // colours whatever the look is (6.0).
-            Text("FEATURED")
+            Text(tr("FEATURED"))
                 .font(.system(size: 11, weight: .semibold))
                 .tracking(2.4)
                 .foregroundStyle(Color.muroAccentOnMedia)
@@ -217,7 +219,7 @@ struct HomeView: View {
                     store.openPreview(item)
                 } label: {
                     HStack(spacing: 8) {
-                        Text("View Wallpaper")
+                        Text(tr("View Wallpaper"))
                             .font(.system(size: 13, weight: .semibold))
                         Image(systemName: "arrow.up.right")
                             .font(.system(size: 11, weight: .semibold))
@@ -239,10 +241,10 @@ struct HomeView: View {
             Image(systemName: "sparkles.rectangle.stack")
                 .font(.system(size: 42))
                 .foregroundStyle(Color.muroSecondary)
-            Text("Your library is empty")
+            Text(tr("Your library is empty"))
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(Color.muroInk)
-            Text("Import your own videos with the + button, or browse Explore to download wallpapers.")
+            Text(tr("Import your own videos with the + button, or browse Explore to download wallpapers."))
                 .font(.system(size: 12.5))
                 .foregroundStyle(Color.muroSecondary)
         }

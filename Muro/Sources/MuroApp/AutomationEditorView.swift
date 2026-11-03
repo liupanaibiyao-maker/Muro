@@ -19,6 +19,7 @@ enum AutomationEditorTarget: Identifiable {
 /// drawing of the day rather than a column of numbers.
 struct AutomationEditorView: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     @Environment(\.dismiss) private var dismiss
     let target: AutomationEditorTarget
 
@@ -60,7 +61,7 @@ struct AutomationEditorView: View {
         guard !name.isEmpty else { return nil }
         let existing = store.automations.map { (id: $0.id, name: $0.name) }
         return nameIsTaken(name, in: existing, excluding: editingID)
-            ? "Name already in use" : nil
+            ? tr("Name already in use") : nil
     }
 
     private var editingID: String? {
@@ -92,13 +93,13 @@ struct AutomationEditorView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SheetHeader(title: isNew ? "New Automation" : "Edit Automation") { dismiss() }
+            SheetHeader(title: isNew ? tr("New Automation") : tr("Edit Automation")) { dismiss() }
                 .padding(.horizontal, 26)
                 .padding(.top, 26)
 
             HStack(spacing: 14) {
                 GlassTextField(
-                    label: "NAME", placeholder: "Automation name",
+                    label: tr("NAME"), placeholder: tr("Automation name"),
                     text: $name, problem: nameProblem
                 )
                 modePicker
@@ -112,7 +113,7 @@ struct AutomationEditorView: View {
                 .padding(.horizontal, 26)
                 .padding(.top, 10)
 
-            SectionLabel("CHOOSE WALLPAPERS", trailing: "\(steps.count) in this schedule")
+            SectionLabel(tr("CHOOSE WALLPAPERS"), trailing: trf("%1 in this schedule", "\(steps.count)"))
                 .padding(.horizontal, 26)
                 .padding(.top, 22)
 
@@ -157,8 +158,8 @@ struct AutomationEditorView: View {
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     SectionLabel(
-                        mode == .timer ? "HOW LONG EACH ONE PLAYS" : "WHEN EACH ONE PLAYS",
-                        trailing: mode == .timer ? "Drag the handle to reorder" : "Drag an edge to change a time"
+                        mode == .timer ? tr("HOW LONG EACH ONE PLAYS") : tr("WHEN EACH ONE PLAYS"),
+                        trailing: mode == .timer ? tr("Drag the handle to reorder") : tr("Drag an edge to change a time")
                     )
                     .padding(.horizontal, 26)
                     .padding(.top, 22)
@@ -210,12 +211,12 @@ struct AutomationEditorView: View {
             Image(systemName: mode == .timer ? "timer" : "clock")
                 .font(.system(size: 22, weight: .light))
                 .foregroundStyle(Color.muroInk.opacity(0.22))
-            Text("Nothing scheduled yet")
+            Text(tr("Nothing scheduled yet"))
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.muroInk.opacity(0.75))
             Text(mode == .timer
-                 ? "Pick a wallpaper above and it plays for ten minutes. Every one you add gets its own length."
-                 : "Pick a wallpaper above and it takes the whole day. Add another and the day splits between them.")
+                 ? tr("Pick a wallpaper above and it plays for ten minutes. Every one you add gets its own length.")
+                 : tr("Pick a wallpaper above and it takes the whole day. Add another and the day splits between them."))
                 .font(.system(size: 11.5))
                 .foregroundStyle(Color.muroSecondary)
                 .multilineTextAlignment(.center)
@@ -230,7 +231,7 @@ struct AutomationEditorView: View {
         loaded = true
         switch target {
         case .new:
-            name = uniqueName(base: "New Automation", taken: store.automations.map(\.name))
+            name = uniqueName(base: tr("New Automation"), taken: store.automations.map(\.name))
         case .edit(let automation):
             name = automation.name
             mode = automation.mode
@@ -243,8 +244,8 @@ struct AutomationEditorView: View {
     private var modePicker: some View {
         PillSegments(
             options: [
-                PillOption(Automation.Mode.timer.rawValue, "Timer", systemImage: "timer"),
-                PillOption(Automation.Mode.clock.rawValue, "Clock", systemImage: "clock")
+                PillOption(Automation.Mode.timer.rawValue, tr("Timer"), systemImage: "timer"),
+                PillOption(Automation.Mode.clock.rawValue, tr("Clock"), systemImage: "clock")
             ],
             selection: Binding(
                 get: { mode.rawValue },
@@ -263,8 +264,8 @@ struct AutomationEditorView: View {
 
     private var modeHint: String {
         mode == .timer
-            ? "Each wallpaper plays for its own length of time, then the next one takes over and it loops."
-            : "Each wallpaper owns a slot on the clock, and the same schedule repeats every day."
+            ? tr("Each wallpaper plays for its own length of time, then the next one takes over and it loops.")
+            : tr("Each wallpaper owns a slot on the clock, and the same schedule repeats every day.")
     }
 
     /// Moving between modes must not leave a step with nothing set. Clock
@@ -291,7 +292,7 @@ struct AutomationEditorView: View {
     /// wallpaper you own to reach the thing you came to set.
     @ViewBuilder private var picker: some View {
         if store.scheduleItems.isEmpty {
-            Text("No wallpapers downloaded yet. Download some from Explore, or import your own with the + button in the Library.")
+            Text(tr("No wallpapers downloaded yet. Download some from Explore, or import your own with the + button in the Library."))
                 .font(.system(size: 12))
                 .foregroundStyle(Color.muroSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -385,7 +386,7 @@ struct AutomationEditorView: View {
                         RoundedRectangle(cornerRadius: 9, style: .continuous)
                             .strokeBorder(Color.muroInk.opacity(0.1), lineWidth: 1)
                     )
-                Text(store.item(id: step.wallpaperID)?.title ?? "Missing wallpaper")
+                Text(store.item(id: step.wallpaperID)?.title ?? tr("Missing wallpaper"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Color.muroInk)
                     .lineLimit(1)
@@ -406,7 +407,7 @@ struct AutomationEditorView: View {
                         .overlay(Circle().strokeBorder(Color.muroInk.opacity(0.12), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
-                .help("Remove from this automation")
+                .help(tr("Remove from this automation"))
             }
             .padding(.horizontal, 13)
             .frame(height: 58)
@@ -559,7 +560,7 @@ struct AutomationEditorView: View {
             TimeChip(minute: step.start, focused: false) { delta in
                 steps = Automation.movingEdge(.start, of: id, by: delta, in: steps)
             }
-            Text("to")
+            Text(tr("to"))
                 .font(.system(size: 11))
                 .foregroundStyle(Color.muroSecondary)
                 .fixedSize()
@@ -573,7 +574,7 @@ struct AutomationEditorView: View {
     /// to be eight trips through a dropdown.
     private var durationPresets: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Set every step at once")
+            Text(tr("Set every step at once"))
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color.muroSecondary)
             HStack(spacing: 8) {
@@ -581,7 +582,7 @@ struct AutomationEditorView: View {
                     Button {
                         for index in steps.indices { steps[index].seconds = seconds }
                     } label: {
-                        Text(durationLabel(seconds))
+                        Text(locDuration(seconds))
                             .font(.system(size: 11.5, weight: .semibold))
                             .foregroundStyle(Color.muroInk.opacity(0.8))
                             .padding(.horizontal, 13)
@@ -626,11 +627,11 @@ struct AutomationEditorView: View {
             .frame(height: 36, alignment: .leading)
         } actions: {
             if !isNew {
-                DangerPill(title: "Delete") { confirmingDelete = true }
+                DangerPill(title: tr("Delete")) { confirmingDelete = true }
             }
-            GhostPill(title: "Cancel") { dismiss() }
+            GhostPill(title: tr("Cancel")) { dismiss() }
             PrimaryPill(
-                title: isNew ? "Create Automation" : "Save",
+                title: isNew ? tr("Create Automation") : tr("Save"),
                 enabled: canSave,
                 returnKeyEnabled: customFor == nil
             ) { save() }
@@ -638,17 +639,18 @@ struct AutomationEditorView: View {
     }
 
     private var summaryLine: String {
-        guard !steps.isEmpty else { return "Pick the wallpapers this automation should use" }
+        guard !steps.isEmpty else { return tr("Pick the wallpapers this automation should use") }
+        let wallpapers = "\(steps.count) \(steps.count == 1 ? tr("wallpaper") : tr("wallpapers"))"
         if mode == .timer {
             let total = steps.reduce(0) { $0 + $1.duration }
-            return "Cycle: \(durationLabel(total)) across \(steps.count) wallpaper\(steps.count == 1 ? "" : "s")"
+            return trf("Cycle: %1 across %2", locDuration(total), wallpapers)
         }
         let covered = 1440 - draft.uncoveredWindows.reduce(0) { total, gap in
             total + (gap.end > gap.start ? gap.end - gap.start : gap.end + 1440 - gap.start)
         }
         return covered >= 1440
-            ? "Covers the whole day across \(steps.count) wallpaper\(steps.count == 1 ? "" : "s")"
-            : "Covers \(durationLabel(covered * 60)) of the day across \(steps.count) wallpaper\(steps.count == 1 ? "" : "s")"
+            ? trf("Covers the whole day across %1", wallpapers)
+            : trf("Covers %1 of the day across %2", locDuration(covered * 60), wallpapers)
     }
 
     /// Gaps are allowed on purpose, so they are stated rather than blocked:
@@ -659,19 +661,21 @@ struct AutomationEditorView: View {
         guard mode == .clock, !steps.isEmpty else { return nil }
         let gaps = draft.uncoveredWindows
         guard let first = gaps.first else { return nil }
-        let text = "\(clockLabel(first.start)) to \(clockLabel(first.end)) is not covered"
-        return gaps.count > 1
-            ? "\(text), and \(gaps.count - 1) other gap\(gaps.count == 2 ? "" : "s"). Whatever is playing stays."
-            : "\(text). Whatever is playing stays."
+        let covered = "\(clockLabel(first.start)) to \(clockLabel(first.end)) is not covered"
+        guard gaps.count > 1 else {
+            return trf("%1. Whatever is playing stays.", covered)
+        }
+        let otherGaps = "\(gaps.count - 1) \(gaps.count == 2 ? tr("other gap") : tr("other gaps"))"
+        return trf("%1, and %2. Whatever is playing stays.", covered, otherGaps)
     }
 
     /// Always present, so the footer keeps its height.
     private var secondLine: String {
         if let warningLine { return warningLine }
-        if steps.isEmpty { return "Pick at least one to get started." }
+        if steps.isEmpty { return tr("Pick at least one to get started.") }
         return mode == .timer
-            ? "It loops back to the first wallpaper and starts again."
-            : "The same schedule repeats every day."
+            ? tr("It loops back to the first wallpaper and starts again.")
+            : tr("The same schedule repeats every day.")
     }
 
     private var draft: Automation {
@@ -769,11 +773,11 @@ struct DurationStepper: View {
             Rectangle().fill(Color.muroInk.opacity(0.1)).frame(width: 1, height: 20)
             MenuButton(width: 160, align: .center) {
                 presets.map { value in
-                    MenuOption(title: durationLabel(value), checked: seconds == value) { seconds = value }
-                } + [.divider, MenuOption(title: "Custom") { onCustom() }]
+                    MenuOption(title: locDuration(value), checked: seconds == value) { seconds = value }
+                } + [.divider, MenuOption(title: tr("Custom")) { onCustom() }]
             } label: {
                 HStack(spacing: 6) {
-                    Text(durationLabel(seconds))
+                    Text(locDuration(seconds))
                         .font(.system(size: 13.5, weight: .semibold))
                         .foregroundStyle(Color.muroInk)
                     Image(systemName: "chevron.down")
@@ -836,16 +840,16 @@ struct CustomDurationPicker: View {
 
     var body: some View {
         CustomValueCard(
-            title: "Custom duration",
+            title: tr("Custom duration"),
             amount: $amount,
-            applyLabel: "Set \(durationLabel(resolved))",
+            applyLabel: trf("Set %1", locDuration(resolved)),
             // Wider than the playlist's card because this one has three units
             // rather than two, and at 272 the row filled the card edge to edge
             // and could not look centred however it was aligned.
             width: 300
         ) {
             PillSegments(
-                options: [PillOption("1", "sec"), PillOption("60", "min"), PillOption("3600", "hr")],
+                options: [PillOption("1", tr("sec")), PillOption("60", tr("min")), PillOption("3600", tr("hr"))],
                 selection: $unit,
                 height: 32,
                 labelSize: 12,

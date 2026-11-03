@@ -176,18 +176,18 @@ struct AppliedPlace: Identifiable, Equatable {
     /// card corner to fit into.
     var chipLabel: String {
         switch kind {
-        case .desktop: return display?.chipLabel ?? "ALL DISPLAYS"
-        case .lockScreen: return (display?.chipLabel ?? "ALL DISPLAYS") + " LOCK"
-        case .screenSaver: return "SCREEN SAVER"
+        case .desktop: return display?.chipLabel ?? tr("ALL DISPLAYS")
+        case .lockScreen: return (display?.chipLabel ?? tr("ALL DISPLAYS")) + " " + tr("LOCK SCREEN")
+        case .screenSaver: return tr("SCREEN SAVER")
         }
     }
 
     /// For anywhere there is room to read a sentence.
     var fullLabel: String {
         switch kind {
-        case .desktop: return display?.displayName ?? "all displays"
-        case .lockScreen: return "\(display?.displayName ?? "all displays") lock screen"
-        case .screenSaver: return "the screen saver"
+        case .desktop: return display?.displayName ?? tr("all displays")
+        case .lockScreen: return trf("%1 %2", display?.displayName ?? tr("all displays"), tr("lock screen"))
+        case .screenSaver: return tr("the screen saver")
         }
     }
 }
@@ -206,7 +206,7 @@ struct DisplayInfo: Identifiable, Equatable {
     /// applies, since that is the more useful thing to know about a display
     /// you are choosing between; otherwise say what it actually is.
     var kindLabel: String {
-        isMain ? "Main" : (isBuiltIn ? "Built-in" : "External")
+        isMain ? tr("Main") : (isBuiltIn ? tr("Built-in") : tr("External"))
     }
 
     var symbolName: String { isBuiltIn ? "laptopcomputer" : "display" }

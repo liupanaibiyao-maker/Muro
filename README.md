@@ -60,6 +60,7 @@ wallpaper and every feature is unlocked.
 - ✨ **Tells you when there is a new Muro.** What's New shows what changed in the release and downloads it for you.
 - 💾 **Space control.** See what each wallpaper costs on disk, remove downloads you're done with, or keep them all on another drive.
 - 🆓 **Free and source available.** Anyone can use it and read the code.
+- 🌐 **Chinese interface (简体中文).** Muro now ships with a full Simplified Chinese translation, with English still one click away in *Settings → General → Interface language*. Chinese is the default language on a fresh install. All settings, menus, dropdowns, dialogs and the What's New screen are covered.
 
 > Requires macOS 14 (Sonoma) or newer. The build is universal, so it runs on
 > both Apple Silicon and Intel Macs. Lock screen and screen saver wallpapers

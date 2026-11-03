@@ -120,7 +120,7 @@ struct WhatsNewView: View {
                     // that, and should not have to scroll past old news.
                     if let update = store.latestRelease {
                         updateBlock(update)
-                        SectionLabel("IN THE VERSION YOU HAVE")
+                        SectionLabel(tr("IN THE VERSION YOU HAVE"))
                     }
                     releaseCard
                     if release.isEmpty {
@@ -147,7 +147,7 @@ struct WhatsNewView: View {
         HStack(spacing: 12) {
             MuroAppIcon()
                 .frame(width: 32, height: 32)
-            Text("What's New")
+            Text(tr("What's New"))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(Color.muroInk)
             Spacer()
@@ -181,7 +181,7 @@ struct WhatsNewView: View {
     private var releaseCard: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Text("Muro \(release.version)")
+                Text(trf("Muro %1", release.version))
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.muroInk)
                 if let date = release.date {
@@ -194,7 +194,7 @@ struct WhatsNewView: View {
                         .overlay(Capsule().strokeBorder(Color.muroInk.opacity(0.1), lineWidth: 1))
                 }
             }
-            Text(release.headline)
+            Text(tr(release.headline))
                 .font(.system(size: 12))
                 .foregroundStyle(Color.muroSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -228,7 +228,7 @@ struct WhatsNewView: View {
             Circle()
                 .fill(section.tint)
                 .frame(width: 5, height: 5)
-            Text(section.name.uppercased())
+            Text(tr(section.name).uppercased())
                 .font(.system(size: 10.5, weight: .semibold, design: .rounded))
                 .tracking(0.5)
                 .foregroundStyle(section.tint)
@@ -251,7 +251,7 @@ struct WhatsNewView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "arrow.down.circle.fill")
                         .font(.system(size: 9.5, weight: .semibold))
-                    Text("UPDATE AVAILABLE")
+                    Text(tr("UPDATE AVAILABLE"))
                         .font(.system(size: 9.5, weight: .semibold))
                         .tracking(1.3)
                 }
@@ -267,7 +267,7 @@ struct WhatsNewView: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Muro \(update.version)")
+                Text(trf("Muro %1", update.version))
                     .font(.system(size: 30, weight: .bold))
                     .foregroundStyle(Color.muroInk)
                 if let title = update.title {
@@ -279,7 +279,7 @@ struct WhatsNewView: View {
             }
 
             if update.isEmpty {
-                Text("The notes for this release are on the release page.")
+                Text(tr("The notes for this release are on the release page."))
                     .font(.system(size: 12.5))
                     .foregroundStyle(Color.muroSecondary)
             } else {
@@ -298,10 +298,10 @@ struct WhatsNewView: View {
             }
 
             HStack(spacing: 10) {
-                PrimaryPill(title: "Download Muro \(update.version)") {
+                PrimaryPill(title: trf("Download Muro %1", update.version)) {
                     store.downloadUpdate()
                 }
-                GhostPill(title: "Release Notes") {
+                GhostPill(title: tr("Release Notes")) {
                     NSWorkspace.shared.open(update.page)
                 }
                 Spacer(minLength: 0)
@@ -367,11 +367,11 @@ struct WhatsNewView: View {
     /// face at the same weight the list read as undifferentiated prose.
     private func entryRow(_ entry: WhatsNewEntry) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(entry.title)
+            Text(tr(entry.title))
                 .font(.system(size: 13.5, weight: .semibold, design: .rounded))
                 .foregroundStyle(Color.muroInk)
                 .fixedSize(horizontal: false, vertical: true)
-            Text(entry.detail)
+            Text(tr(entry.detail))
                 .font(.system(size: 12))
                 .foregroundStyle(Color.muroSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -391,10 +391,10 @@ struct WhatsNewView: View {
                 .frame(width: 54, height: 54)
                 .background(Circle().fill(.glassSheen(0.14, 0.05)))
                 .overlay(Circle().strokeBorder(Color.muroInk.opacity(0.16), lineWidth: 1))
-            Text("The notes for this update are on the way")
+            Text(tr("The notes for this update are on the way"))
                 .font(.system(size: 14.5, weight: .semibold))
                 .foregroundStyle(Color.muroInk)
-            Text("Everything that changed will be listed right here: what is new, what got better, and what was fixed.")
+            Text(tr("Everything that changed will be listed right here: what is new, what got better, and what was fixed."))
                 .font(.system(size: 12.5))
                 .foregroundStyle(Color.muroSecondary)
                 .multilineTextAlignment(.center)
@@ -419,16 +419,16 @@ struct WhatsNewView: View {
         SheetFooter {
             Text(
                 store.latestRelease == nil
-                    ? "You are running Muro \(AppStore.appVersion), the latest version"
-                    : "You are running Muro \(AppStore.appVersion)"
+                    ? trf("You are running Muro %1, the latest version", AppStore.appVersion)
+                    : trf("You are running Muro %1", AppStore.appVersion)
             )
             .font(.system(size: 12, weight: .medium))
             .foregroundStyle(Color.muroSecondary)
         } actions: {
-            GhostPill(title: "Earlier releases") {
+            GhostPill(title: tr("Earlier releases")) {
                 NSWorkspace.shared.open(WhatsNew.releasesURL)
             }
-            PrimaryPill(title: "Done") { dismiss() }
+            PrimaryPill(title: tr("Done")) { dismiss() }
         }
     }
 }

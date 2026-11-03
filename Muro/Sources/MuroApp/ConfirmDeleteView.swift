@@ -20,6 +20,7 @@ struct DeleteRequest: Identifiable, Equatable {
 /// like the rest of it.
 struct ConfirmDeleteView: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     @Environment(\.dismiss) private var dismiss
     let request: DeleteRequest
 
@@ -95,7 +96,7 @@ struct ConfirmDeleteView: View {
         HStack(spacing: 10) {
             Spacer()
             Button { dismiss() } label: {
-                Text("Cancel")
+                Text(tr("Cancel"))
                     .font(.system(size: 12.5, weight: .semibold))
                     .foregroundStyle(Color.muroInk)
                     .padding(.horizontal, 18)
@@ -109,7 +110,7 @@ struct ConfirmDeleteView: View {
                 store.deleteWallpapers(items)
                 dismiss()
             } label: {
-                Text(actionWord + (items.count > 1 ? " \(items.count)" : ""))
+                Text(tr(actionWord) + (items.count > 1 ? " \(items.count)" : ""))
                     .font(.system(size: 12.5, weight: .semibold))
                     .foregroundStyle(Color.muroInk)
                     .padding(.horizontal, 20)
@@ -188,16 +189,16 @@ struct ConfirmDeleteView: View {
 
     /// "Remove Download" opened a sheet asking "Delete this wallpaper?" (full
     /// check, 2026-10-01). A request from that menu item keeps its words.
-    private var actionWord: String { request.removingDownload ? "Remove" : "Delete" }
+    private var actionWord: String { request.removingDownload ? tr("Remove") : tr("Delete") }
 
     private var title: String {
         if request.removingDownload {
-            return items.count == 1 ? "Remove this download?" : "Remove \(items.count) downloads?"
+            return items.count == 1 ? tr("Remove this download?") : trf("Remove %1 downloads?", "\(items.count)")
         }
         if onlySavers {
-            return items.count == 1 ? "Delete this screen saver?" : "Delete \(items.count) screen savers?"
+            return items.count == 1 ? tr("Delete this screen saver?") : trf("Delete %1 screen savers?", "\(items.count)")
         }
-        return items.count == 1 ? "Delete this wallpaper?" : "Delete \(items.count) wallpapers?"
+        return items.count == 1 ? tr("Delete this wallpaper?") : trf("Delete %1 wallpapers?", "\(items.count)")
     }
 
     /// The person's own screen savers. They go to the Trash rather than for
@@ -210,9 +211,9 @@ struct ConfirmDeleteView: View {
 
     /// Said instead of the download line when screen savers are in it.
     private var saverLine: String? {
-        if onlySavers { return items.count == 1 ? "It goes to the Trash." : "They go to the Trash." }
+        if onlySavers { return items.count == 1 ? tr("It goes to the Trash.") : tr("They go to the Trash.") }
         if !savers.isEmpty, personal.isEmpty {
-            return "Screen savers go to the Trash. The others you can download again."
+            return tr("Screen savers go to the Trash. The others you can download again.")
         }
         return nil
     }
@@ -230,17 +231,17 @@ struct ConfirmDeleteView: View {
         if let saverLine { return saverLine }
         if personal.isEmpty {
             return items.count == 1
-                ? "You can download it again any time."
-                : "You can download them again any time."
+                ? tr("You can download it again any time.")
+                : tr("You can download them again any time.")
         }
         if personal.count == items.count {
             return items.count == 1
-                ? "This is your own video. Deleting it is permanent."
-                : "These are your own videos. Deleting them is permanent."
+                ? tr("This is your own video. Deleting it is permanent.")
+                : tr("These are your own videos. Deleting them is permanent.")
         }
         return personal.count == 1
-            ? "1 is your own video, and that one is permanent."
-            : "\(personal.count) are your own videos, and those are permanent."
+            ? tr("1 is your own video, and that one is permanent.")
+            : trf("%1 are your own videos, and those are permanent.", "\(personal.count)")
     }
 
     /// What is currently in use, as chips rather than sentences. Two lines of
@@ -249,8 +250,8 @@ struct ConfirmDeleteView: View {
     private var notices: [String] {
         var out: [String] = []
         if let playing = playingNotice { out.append(playing) }
-        if lockScreenAffected { out.append("LOCK SCREEN") }
-        if screenSaverAffected { out.append("SCREEN SAVER") }
+        if lockScreenAffected { out.append(tr("LOCK SCREEN")) }
+        if screenSaverAffected { out.append(tr("SCREEN SAVER")) }
         return out
     }
 
@@ -266,13 +267,13 @@ struct ConfirmDeleteView: View {
             let shown = items.contains {
                 AppleAerials.isMacOSOnly($0.id) && !store.appliedPlaces(for: $0.id).isEmpty
             }
-            return shown ? "SHOWING NOW" : nil
+            return shown ? tr("SHOWING NOW") : nil
         }
         let displays = store.appliedDisplays(for: first.id)
         if applied.count == 1, displays.count == 1, let display = displays.first {
-            return "PLAYING ON \(friendly(display).uppercased())"
+            return trf("PLAYING ON %1", tr(friendly(display)).uppercased())
         }
-        return "PLAYING NOW"
+        return tr("PLAYING NOW")
     }
 
     /// The playlists and automations a delete takes these out of. The sheet
@@ -287,10 +288,10 @@ struct ConfirmDeleteView: View {
         let list: String
         switch names.count {
         case 1: list = last
-        case 2, 3: list = names.dropLast().joined(separator: ", ") + " and " + last
-        default: list = "\(names.count) playlists and automations"
+        case 2, 3: list = names.dropLast().joined(separator: tr(", ")) + tr(" and ") + last
+        default: list = trf("%1 playlists and automations", "\(names.count)")
         }
-        return (items.count == 1 ? "It also comes out of " : "They also come out of ") + list + "."
+        return (items.count == 1 ? tr("It also comes out of ") : tr("They also come out of ")) + list + "."
     }
 
     private var lockScreenAffected: Bool {

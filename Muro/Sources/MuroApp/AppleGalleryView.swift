@@ -22,6 +22,7 @@ import MuroKit
 /// (`AppleAerialFetcher`), once, and only for the cards that are looked at.
 struct AppleGalleryView: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     @StateObject private var model = AppleAerialModel()
     @ObservedObject private var fetcher = AppleAerialFetcher.shared
 
@@ -87,8 +88,8 @@ struct AppleGalleryView: View {
         ZStack {
             PillSegments(
                 options: [
-                    PillOption(Kind.aerials.rawValue, "Aerials", count: model.aerialCount),
-                    PillOption(Kind.screenSavers.rawValue, "Screen Savers",
+                    PillOption(Kind.aerials.rawValue, tr("Aerials"), count: model.aerialCount),
+                    PillOption(Kind.screenSavers.rawValue, tr("Screen Savers"),
                                count: model.aerials == nil ? nil : model.screenSavers(matching: "").count)
                 ],
                 selection: Binding(
@@ -192,9 +193,13 @@ struct AppleGalleryView: View {
 
     private var countLine: String {
         let count = shown.count
-        let noun = count == 1 ? "wallpaper" : "wallpapers"
-        if category == "All" { return "\(count) \(noun) from Apple" }
-        return "\(count) \(noun) in \(category)"
+        let countText = "\(count)"
+        if category == "All" {
+            return count == 1 ? trf("%1 wallpaper from Apple", countText) : trf("%1 wallpapers from Apple", countText)
+        }
+        return count == 1
+            ? trf("%1 wallpaper in %2", countText, category)
+            : trf("%1 wallpapers in %2", countText, category)
     }
 
     /// Videos ready to play, and still pictures downloaded, on this page.
@@ -209,7 +214,7 @@ struct AppleGalleryView: View {
         HStack(spacing: 6) {
             Image(systemName: "arrow.down.circle.fill")
                 .font(.system(size: 10.5, weight: .semibold))
-            Text("\(downloadedCount) on this Mac")
+            Text(trf("%1 on this Mac", "\(downloadedCount)"))
                 .font(.system(size: 12, weight: .semibold))
         }
         .foregroundStyle(Color.muroAccent)
@@ -250,7 +255,7 @@ struct AppleGalleryView: View {
                     // page with the tab still saying 8 (full check,
                     // 2026-10-01). It answers the way the aerials do.
                     if savers.isEmpty {
-                        if model.loaded { noMatchesState(noun: "screen saver") } else { loadingState }
+                        if model.loaded { noMatchesState(noun: tr("screen saver")) } else { loadingState }
                     } else {
                         saverGrid(savers)
                     }
@@ -286,7 +291,7 @@ struct AppleGalleryView: View {
         } else if model.aerials == nil {
             noStoreState
         } else {
-            noMatchesState(noun: "aerial")
+            noMatchesState(noun: tr("aerial"))
         }
     }
 
@@ -295,7 +300,7 @@ struct AppleGalleryView: View {
             ProgressView()
                 .controlSize(.large)
                 .tint(Color.muroAccent)
-            Text("Reading Apple's wallpapers…")
+            Text(tr("Reading Apple's wallpapers…"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.muroSecondary)
         }
@@ -306,11 +311,11 @@ struct AppleGalleryView: View {
     private var noStoreState: some View {
         VStack(spacing: 12) {
             emptyIcon("macwindow.badge.plus")
-            Text("Apple's wallpapers are not on this Mac yet")
+            Text(tr("Apple's wallpapers are not on this Mac yet"))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(Color.muroInk)
-            Text("Open System Settings and look at Wallpaper once. macOS writes "
-                 + "its list of aerials then, and Muro reads the same list.")
+            Text(tr("Open System Settings and look at Wallpaper once. macOS writes "
+                 + "its list of aerials then, and Muro reads the same list."))
                 .font(.system(size: 12.5))
                 .foregroundStyle(Color.muroSecondary)
                 .multilineTextAlignment(.center)
@@ -319,7 +324,7 @@ struct AppleGalleryView: View {
             Button {
                 model.load()
             } label: {
-                Text("Look Again")
+                Text(tr("Look Again"))
                     .font(.system(size: 12.5, weight: .semibold))
                     .foregroundStyle(Color.muroAccent)
                     .padding(.horizontal, 18)
@@ -337,12 +342,12 @@ struct AppleGalleryView: View {
     private func noMatchesState(noun: String) -> some View {
         VStack(spacing: 12) {
             emptyIcon("sparkle.magnifyingglass")
-            Text("Nothing matches that")
+            Text(tr("Nothing matches that"))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(Color.muroInk)
             Text(store.searchText.isEmpty
-                 ? "Try another category."
-                 : "No \(noun) called \(store.searchText). Try another word.")
+                 ? tr("Try another category.")
+                 : trf("No %1 called %2. Try another word.", noun, store.searchText))
                 .font(.system(size: 12.5))
                 .foregroundStyle(Color.muroSecondary)
                 .multilineTextAlignment(.center)

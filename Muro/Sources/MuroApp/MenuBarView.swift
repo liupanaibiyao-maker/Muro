@@ -3,6 +3,8 @@ import MuroKit
 
 struct MenuBarView: View {
     @EnvironmentObject var store: AppStore
+    /// Re-renders the panel's labels when the language changes.
+    @ObservedObject var language = LanguageStore.shared
 
     private var currentItem: WallpaperItem? {
         store.currentAppliedID.flatMap { store.item(id: $0) }
@@ -61,7 +63,7 @@ struct MenuBarView: View {
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             } else {
-                Text("No wallpaper applied")
+                Text(tr("No wallpaper applied"))
                     .font(.system(size: 12.5, weight: .medium))
                     .foregroundStyle(Color.muroSecondary)
                     .frame(maxWidth: .infinity)
@@ -74,14 +76,14 @@ struct MenuBarView: View {
                 } label: {
                     HStack(spacing: 5) {
                         NotificationDot(size: 6)
-                        Text("Muro \(version) available")
+                        Text(trf("Muro %1 available", version))
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(Color.muroAccent)
                     }
                 }
                 .buttonStyle(.plain)
             } else {
-                Text("Version \(AppStore.appVersion)")
+                Text(trf("Version %1", AppStore.appVersion))
                     .font(.system(size: 10))
                     .foregroundStyle(Color.muroSecondary)
             }
@@ -202,7 +204,7 @@ struct MenuBarView: View {
     /// back to the newest when the panel opens or a wallpaper is applied.
     private var recents: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text("RECENTS")
+            Text(tr("RECENTS"))
                 .font(.system(size: 9, weight: .semibold))
                 .tracking(1.4)
                 .foregroundStyle(Color.muroAccent)
@@ -279,7 +281,7 @@ struct MenuBarView: View {
     /// every row reads Off.
     private var placesSection: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text("PLAYLISTS & AUTOMATIONS")
+            Text(tr("PLAYLISTS & AUTOMATIONS"))
                 .font(.system(size: 9, weight: .semibold))
                 .tracking(1.4)
                 .foregroundStyle(Color.muroAccent)
@@ -308,7 +310,7 @@ struct MenuBarView: View {
             Spacer()
             GlassDropdown(width: 230, arrowEdge: .bottom, options: { store.placeMenu(for: place) }) {
                 HStack(spacing: 4) {
-                    Text(store.nowPlayingName(on: place) ?? "Off")
+                    Text(store.nowPlayingName(on: place) ?? tr("Off"))
                         .font(.system(size: 11.5, weight: .medium))
                         .foregroundStyle(
                             store.nowPlaying[place] != nil ? Color.muroAccent : Color.muroSecondary
@@ -332,16 +334,16 @@ struct MenuBarView: View {
 
     private var menuButtons: some View {
         VStack(spacing: 2) {
-            menuRow("Open Muro", icon: "macwindow") {
+            menuRow(tr("Open Muro"), icon: "macwindow") {
                 StatusBarController.shared?.closePanel()
                 showMainWindow()
             }
-            menuRow("Settings", icon: "gearshape") {
+            menuRow(tr("Settings"), icon: "gearshape") {
                 StatusBarController.shared?.closePanel()
                 openSettingsWindow()
             }
             updateRow
-            menuRow("Quit Muro", icon: "power", trailingText: "⌘Q") {
+            menuRow(tr("Quit Muro"), icon: "power", trailingText: "⌘Q") {
                 NSApp.terminate(nil)
             }
         }
@@ -418,21 +420,21 @@ struct MenuBarView: View {
             // new version was out. The row still offers the check, because
             // being told is the point of pressing it.
             menuRow(
-                "Check for Updates",
+                tr("Check for Updates"),
                 icon: "arrow.triangle.2.circlepath",
-                badge: store.latestRelease != nil ? "New Update Available" : nil
+                badge: store.latestRelease != nil ? tr("New Update Available") : nil
             ) {
                 Task { await store.checkForUpdates(userInitiated: true) }
             }
         case .checking:
-            updateStatusRow(icon: "arrow.triangle.2.circlepath", title: "Checking…") {
+            updateStatusRow(icon: "arrow.triangle.2.circlepath", title: tr("Checking…")) {
                 ProgressView()
                     .controlSize(.small)
                     .scaleEffect(0.65)
                     .frame(width: 16, height: 16)
             }
         case .upToDate:
-            updateStatusRow(icon: "checkmark.circle", title: "Muro is up to date") {
+            updateStatusRow(icon: "checkmark.circle", title: tr("Muro is up to date")) {
                 Text("v\(AppStore.appVersion)")
                     .font(.system(size: 11))
                     .foregroundStyle(Color.muroSecondary)
@@ -440,7 +442,7 @@ struct MenuBarView: View {
         case .failed:
             // Tappable, because the usual reason is a network that has since
             // come back and the fix is to press it again.
-            menuRow("Could not check. Try again", icon: "exclamationmark.triangle") {
+            menuRow(tr("Could not check. Try again"), icon: "exclamationmark.triangle") {
                 Task { await store.checkForUpdates(userInitiated: true) }
             }
         case let .available(version, _):
@@ -461,11 +463,11 @@ struct MenuBarView: View {
                     .font(.system(size: 12))
                     .foregroundStyle(Color.muroAccent)
                     .frame(width: 16)
-                Text("Muro \(version) is available")
+                Text(trf("Muro %1 is available", version))
                     .font(.system(size: 12.5, weight: .medium))
                     .foregroundStyle(Color.muroInk)
                 Spacer()
-                Text("Download")
+                Text(tr("Download"))
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(Color.muroOnAccent)
                     .padding(.horizontal, 10)

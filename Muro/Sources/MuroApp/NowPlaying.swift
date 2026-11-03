@@ -40,13 +40,13 @@ enum ScheduleRef: Hashable {
 }
 
 extension AppStore {
-    /// "PLAYING ON DESKTOP", for the chip on a card. Nil when it is playing
+    /// "正在播放于 桌面", for the chip on a card. Nil when it is playing
     /// nowhere.
     func playingLabel(for schedule: ScheduleRef) -> String? {
         let playing = places(playing: schedule)
         guard !playing.isEmpty else { return nil }
-        if playing.count == SchedulePlace.allCases.count { return "PLAYING EVERYWHERE" }
-        return "PLAYING ON " + playing.map { $0.title.uppercased() }.joined(separator: " + ")
+        if playing.count == SchedulePlace.allCases.count { return tr("PLAYING EVERYWHERE") }
+        return trf("PLAYING ON %1", playing.map { locPlaceTitle($0) }.joined(separator: tr(" + ")))
     }
 
     /// What a place's row says it is playing.
@@ -59,12 +59,12 @@ extension AppStore {
     /// it. One playing somewhere else says where, in short words, and one
     /// playing on every place says Everywhere, like the card's chip.
     func placeMenu(for place: SchedulePlace) -> [MenuOption] {
-        var options = [MenuOption(title: "Off", checked: nowPlaying[place] == nil) { [weak self] in
+        var options = [MenuOption(title: tr("Off"), checked: nowPlaying[place] == nil) { [weak self] in
             self?.stopPlaying(on: place)
         }]
         guard !playlists.isEmpty || !automations.isEmpty else {
             options.append(.divider)
-            options.append(MenuOption(title: "No playlists or automations yet"))
+            options.append(MenuOption(title: tr("No playlists or automations yet")))
             return options
         }
         func option(_ schedule: ScheduleRef, title: String) -> MenuOption {
@@ -76,20 +76,20 @@ extension AppStore {
                 title: title,
                 checked: here,
                 detail: everywhere
-                    ? "Everywhere"
-                    : (elsewhere.isEmpty ? nil : "On " + elsewhere.map(\.shortTitle).joined(separator: " + "))
+                    ? tr("Everywhere")
+                    : (elsewhere.isEmpty ? nil : trf("On %1", elsewhere.map { locShortTitle($0) }.joined(separator: tr(" + "))))
             ) { [weak self] in
                 here ? self?.stopPlaying(on: place) : self?.play(schedule, on: place)
             }
         }
         if !playlists.isEmpty {
             options.append(.divider)
-            options.append(.header("PLAYLISTS"))
+            options.append(.header(tr("PLAYLISTS")))
             options += playlists.map { option(.playlist($0.id), title: $0.name) }
         }
         if !automations.isEmpty {
             options.append(.divider)
-            options.append(.header("AUTOMATIONS"))
+            options.append(.header(tr("AUTOMATIONS")))
             options += automations.map { option(.automation($0.id), title: $0.name) }
         }
         return options
@@ -100,6 +100,7 @@ extension AppStore {
 /// place, each opening the same list as its row in the menu bar.
 struct NowPlayingBar: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -109,7 +110,7 @@ struct NowPlayingBar: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel("NOW PLAYING")
+            SectionLabel(tr("NOW PLAYING"))
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(store.schedulePlaces) { place in
                     NowPlayingTile(place: place)
@@ -121,6 +122,7 @@ struct NowPlayingBar: View {
 
 private struct NowPlayingTile: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     let place: SchedulePlace
 
     @State private var hovering = false
@@ -134,11 +136,11 @@ private struct NowPlayingTile: View {
                     .shadow(color: .white.opacity(0.45), radius: 3)
                     .bubbleSurface(size: 34, tint: .white)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(place.title.uppercased())
+                    Text(locPlaceTitle(place))
                         .font(.system(size: 9.5, weight: .semibold))
                         .tracking(1.1)
                         .foregroundStyle(Color.muroSecondary)
-                    Text(store.nowPlayingName(on: place) ?? "Off")
+                    Text(store.nowPlayingName(on: place) ?? tr("Off"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(
                             store.nowPlaying[place] == nil ? Color.muroSecondary : Color.muroInk

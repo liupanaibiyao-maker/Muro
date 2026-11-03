@@ -11,6 +11,7 @@ import MuroKit
 /// the categories, and a second line for the filters that narrow them.
 struct ExploreView: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     @State private var category = "All"
     /// Which way the last category change went, read off the order of the
     /// pills themselves, so the grid leaves towards the pill you came from.
@@ -177,13 +178,13 @@ struct ExploreView: View {
             Spacer(minLength: 12)
             if narrowed { clearFilters }
             FilterDropdown(
-                title: "Resolution",
+                title: tr("Resolution"),
                 value: resolution,
                 width: 190,
                 options: { pickOptions(all: resolutionOptions, selection: resolution) { resolution = $0 } }
             )
             FilterDropdown(
-                title: "FPS",
+                title: tr("FPS"),
                 value: fps,
                 width: 160,
                 options: { pickOptions(all: fpsOptions, selection: fps) { fps = $0 } }
@@ -195,9 +196,13 @@ struct ExploreView: View {
 
     private var countLine: String {
         let count = filtered.count
-        let noun = count == 1 ? "wallpaper" : "wallpapers"
-        if category == "All" { return "\(count) \(noun)" }
-        return "\(count) \(noun) in \(category)"
+        let countText = "\(count)"
+        if category == "All" {
+            return count == 1 ? trf("%1 wallpaper", countText) : trf("%1 wallpapers", countText)
+        }
+        return count == 1
+            ? trf("%1 wallpaper in %2", countText, category)
+            : trf("%1 wallpapers in %2", countText, category)
     }
 
     private var clearFilters: some View {
@@ -208,7 +213,7 @@ struct ExploreView: View {
             HStack(spacing: 6) {
                 Image(systemName: "xmark")
                     .font(.system(size: 9.5, weight: .semibold))
-                Text("Clear filters")
+                Text(tr("Clear filters"))
                     .font(.system(size: 12, weight: .semibold))
             }
             .foregroundStyle(Color.muroAccent)
@@ -271,7 +276,7 @@ struct ExploreView: View {
             ProgressView()
                 .controlSize(.large)
                 .tint(Color.muroAccent)
-            Text("Loading wallpapers…")
+            Text(tr("Loading wallpapers…"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.muroSecondary)
         }
@@ -301,12 +306,12 @@ struct ExploreView: View {
     private var noMatchesState: some View {
         VStack(spacing: 12) {
             emptyIcon("sparkle.magnifyingglass")
-            Text("Nothing matches that")
+            Text(tr("Nothing matches that"))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(Color.muroInk)
             Text(store.searchText.isEmpty
-                 ? "Try another category, or widen the resolution and frame rate."
-                 : "No wallpaper called \(store.searchText). Try another word.")
+                 ? tr("Try another category, or widen the resolution and frame rate.")
+                 : trf("No wallpaper called %1. Try another word.", store.searchText))
                 .font(.system(size: 12.5))
                 .foregroundStyle(Color.muroSecondary)
                 .multilineTextAlignment(.center)
@@ -330,7 +335,7 @@ struct ExploreView: View {
                     Text(problem.title)
                         .font(.system(size: 12.5, weight: .semibold))
                         .foregroundStyle(Color.muroInk)
-                    Text("Only the wallpapers you have already downloaded are showing.")
+                    Text(tr("Only the wallpapers you have already downloaded are showing."))
                         .font(.system(size: 11.5))
                         .foregroundStyle(Color.muroSecondary)
                 }
@@ -364,7 +369,7 @@ struct ExploreView: View {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 11, weight: .semibold))
                 }
-                Text(store.catalogRefreshing ? "Checking…" : "Try Again")
+                Text(store.catalogRefreshing ? tr("Checking…") : tr("Try Again"))
                     .font(.system(size: 12.5, weight: .semibold))
             }
             .foregroundStyle(Color.muroAccent)

@@ -28,6 +28,8 @@ enum SettingsIcon {
     /// Menu Bar Icon (6.0): Muro's own glyph, the moon over the horizon, on
     /// a tile the colour of moonlight. Same grid and rules.
     case menuBarIcon
+    /// Interface language: a globe on the same grid and rules.
+    case language
 
     /// The tile's colour. Nil for the replay arrow, which has no tile.
     var tint: Color? {
@@ -52,6 +54,7 @@ enum SettingsIcon {
         case .support: return Color(hex: 0xFF6B8E)
         case .appearance: return Color(hex: 0xB9C2D0)
         case .menuBarIcon: return Color(hex: 0xF5C451)
+        case .language: return Color(hex: 0x5BC8F0)
         }
     }
 
@@ -78,6 +81,7 @@ enum SettingsIcon {
         case .support: return Color(hex: 0xFFB5C6)
         case .appearance: return Color(hex: 0xDCE1E8)
         case .menuBarIcon: return Color(hex: 0xFAE1A8)
+        case .language: return Color(hex: 0xA6E0F8)
         }
     }
 
@@ -415,6 +419,16 @@ enum SettingsIcon {
                 p.move(to: pt(1.75, 13.4))
                 p.addCurve(to: pt(9, 12.85), control1: pt(4.25, 11.7), control2: pt(6.35, 13.8))
                 p.addCurve(to: pt(16.25, 13.55), control1: pt(11.65, 11.9), control2: pt(14.15, 12.05))
+            })
+        case .language:
+            // A globe: outer ring, equator and a meridian, all on the same
+            // 1.5 point line as the set. No fill, so it reads on every look.
+            stroke(circle(9, 9, 6.75))
+            stroke(Path { p in
+                p.addEllipse(in: CGRect(x: 2.25, y: 6.75, width: 13.5, height: 4.5))
+            })
+            stroke(Path { p in
+                p.addEllipse(in: CGRect(x: 5.75, y: 2.25, width: 6.5, height: 13.5))
             })
         }
     }

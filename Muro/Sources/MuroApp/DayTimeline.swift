@@ -138,6 +138,7 @@ private struct DayTrack: View {
 
 private struct SpanBlock: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     let span: DaySpan
     let width: CGFloat
     let height: CGFloat
@@ -184,7 +185,7 @@ private struct SpanBlock: View {
     /// "12:00 AM to 12:00 AM" for a whole day is the one place the clock
     /// format actively misleads.
     private var rangeLabel: String {
-        guard span.length < DayLayout.minutesPerDay else { return "00:00 – 24:00" }
+        guard span.length < DayLayout.minutesPerDay else { return tr("00:00 – 24:00") }
         let end = (span.start + span.length) % DayLayout.minutesPerDay
         return "\(clockLabel(span.start)) – \(end == 0 ? "24:00" : clockLabel(end))"
     }
@@ -196,6 +197,7 @@ private struct GapBlock: View {
     var width: CGFloat
     var height: CGFloat
     var labelled: Bool
+    @ObservedObject var language = LanguageStore.shared
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: 11, style: .continuous)
@@ -203,7 +205,7 @@ private struct GapBlock: View {
             shape.fill(Color.muroWarn.opacity(0.10))
             shape.strokeBorder(Color.muroWarn.opacity(0.22), lineWidth: 1)
             if labelled, width > 96 {
-                Text("Not covered")
+                Text(tr("Not covered"))
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(Color.muroWarn.opacity(0.95))
                     .padding(.horizontal, 11)
@@ -280,6 +282,7 @@ private struct HourLabels: View {
 /// Nothing in the drag path is allowed to animate.
 struct DayTimelineEditor: View {
     @EnvironmentObject var store: AppStore
+    @ObservedObject var language = LanguageStore.shared
     @Binding var steps: [Automation.Step]
     @Binding var focusedStepID: String?
     var height: CGFloat = 54
@@ -359,7 +362,7 @@ struct DayTimelineEditor: View {
                 context.stroke(shape, with: .color(Color.muroWarn.opacity(0.22)), lineWidth: 1)
                 if rect.width > 96 {
                     context.draw(
-                        Text("Not covered")
+                        Text(tr("Not covered"))
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(Color.muroWarn.opacity(0.95)),
                         at: CGPoint(x: rect.minX + 11, y: rect.midY),
