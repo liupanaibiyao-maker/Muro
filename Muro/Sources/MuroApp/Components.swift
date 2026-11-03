@@ -1256,7 +1256,7 @@ struct WallpaperCard: View {
         if persistentTitle || hovering {
             VStack(alignment: .leading, spacing: 2) {
                 if hovering && !persistentTitle {
-                    Text(item.category.uppercased())
+                    Text(trCategory(item.category))
                         .font(.system(size: 8.5, weight: .semibold))
                         .tracking(1.2)
                         .foregroundStyle(Color.muroAccent)

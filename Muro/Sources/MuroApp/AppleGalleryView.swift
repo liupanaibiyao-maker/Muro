@@ -142,7 +142,7 @@ struct AppleGalleryView: View {
     }
 
     private var categoryOptions: [PillOption] {
-        [PillOption("All", "All")] + model.categories.map { PillOption($0, $0) }
+        [PillOption("All", trCategory("All"))] + model.categories.map { PillOption($0, trCategory($0)) }
     }
 
     /// The Library's small switch, at the same size, so the page reads as two
@@ -198,8 +198,8 @@ struct AppleGalleryView: View {
             return count == 1 ? trf("%1 wallpaper from Apple", countText) : trf("%1 wallpapers from Apple", countText)
         }
         return count == 1
-            ? trf("%1 wallpaper in %2", countText, category)
-            : trf("%1 wallpapers in %2", countText, category)
+            ? trf("%1 wallpaper in %2", countText, trCategory(category))
+            : trf("%1 wallpapers in %2", countText, trCategory(category))
     }
 
     /// Videos ready to play, and still pictures downloaded, on this page.

@@ -119,7 +119,7 @@ struct ExploreView: View {
     // MARK: - Categories
 
     private var categoryOptions: [PillOption] {
-        [PillOption("All", "All")] + store.categories.map { PillOption($0, $0) }
+        [PillOption("All", trCategory("All"))] + store.categories.map { PillOption($0, trCategory($0)) }
     }
 
     private var categorySegments: some View {
@@ -201,8 +201,8 @@ struct ExploreView: View {
             return count == 1 ? trf("%1 wallpaper", countText) : trf("%1 wallpapers", countText)
         }
         return count == 1
-            ? trf("%1 wallpaper in %2", countText, category)
-            : trf("%1 wallpapers in %2", countText, category)
+            ? trf("%1 wallpaper in %2", countText, trCategory(category))
+            : trf("%1 wallpapers in %2", countText, trCategory(category))
     }
 
     private var clearFilters: some View {

@@ -124,6 +124,18 @@ func locShortTitle(_ place: SchedulePlace) -> String {
     }
 }
 
+/// Translate a wallpaper *category name*. Categories are data (they come from
+/// the catalog JSON and Apple's lists, not from the UI), so a plain `tr()`
+/// would not cover the dynamic ones. This maps the known English category
+/// names to Chinese and falls back to the original for anything new, so a
+/// category the catalog adds later still shows something readable.
+func trCategory(_ name: String) -> String {
+    switch LanguageStore.shared.language {
+    case .chinese: return Localization.categories[name] ?? name
+    case .english: return name
+    }
+}
+
 /// The full place name. Mirrors `SchedulePlace.title`.
 func locPlaceTitle(_ place: SchedulePlace) -> String {
     switch place {
@@ -733,5 +745,32 @@ enum Localization {
         "sec": "秒",
         "to": "至",
         "wallpapers": "壁纸",
+    ]
+
+    // MARK: - Wallpaper categories
+    //
+    // English category names, as they arrive from the catalog JSON and from
+    // Apple's lists. `trCategory()` reads these. Anything not listed here
+    // falls back to the original English name.
+    static let categories: [String: String] = [
+        // Muro's catalog
+        "Abstract": "抽象",
+        "Anime": "动漫",
+        "Cars": "汽车",
+        "Movies": "影视",
+        "Nature": "自然",
+        "Sci-fi": "科幻",
+        "Video Games": "游戏",
+        // Apple's aerials
+        "Landscape": "风景",
+        "Cityscape": "城市",
+        "Underwater": "水下",
+        "Earth": "地球",
+        "Mac": "Mac",
+        "Dynamic Wallpapers": "动态壁纸",
+        "Other": "其他",
+        // The Apple section pagination resets to this; kept untranslated "All"
+        // is the bucket name, not a label.
+        "All": "全部",
     ]
 }
